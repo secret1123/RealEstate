@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by AnLu on
@@ -17,43 +18,41 @@ import java.io.IOException;
  */
 public class Spider implements Runnable {
 
-    private static final String INIT_URL = "http://tj.lianjia.com/ershoufang/rs/";
-    private static final String URL = "http://tj.lianjia.com";
-    private Element element;
+    private static final String URL = "http://bj.lianjia.com/ershoufang/";
+    private String areaName;
 
-    public Spider(Element element) {
-        this.element = element;
+    public Spider(String areaName) {
+        this.areaName = areaName;
     }
 
     public static void main(String[] args) throws IOException {
-        Document document = Jsoup.connect(INIT_URL).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
-        Elements elements = document.select("div[data-role=ershoufang]").first().select("a[href^=/ershoufang]");
+        Document document = Jsoup.connect(URL).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
+        Elements elements = document.select("div[data-role=ershoufang]").first().select("a");
         for (Element element : elements) {
-            Thread thread = new Thread(new Spider(element));
+            String areaName = element.attr("href").replaceAll("(ershoufang|/)", "");
+            Thread thread = new Thread(new Spider(areaName));
             thread.start();
         }
     }
 
     @Override
     public void run() {
-        String areaUrl = element.attr("href");
         try {
-            Document areaDocument = Jsoup.connect(URL.concat(areaUrl)).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
-            int total = Integer.parseInt(areaDocument.select("h2[class=total fl]").first().child(0).text());
-            int pages = (int) Math.ceil(total / 30d);
+            Document areaDocument = Jsoup.connect(URL.concat(areaName)).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
+            int totalHouses = Integer.parseInt(areaDocument.select("h2[class*=total fl]").first().child(0).text());
+            int pages = (int) Math.ceil(totalHouses / 30d);
             for (int i = 0; i < pages; i++) {
-                page(areaUrl, i + 1);
-                System.out.println(areaUrl.replace("/", "").replace("ershoufang", "") + ",page:" + (i + 1));
+                page(areaName, i + 1);
+                System.out.println(areaName + "\t\tpage:" + (i + 1));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void page(String areaUrl, int page) {
-        String areaName = areaUrl.replace("/", "").replace("ershoufang", "");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/tj/" + areaName, true))) {
-            Document document = Jsoup.connect(URL.concat(areaUrl) + "pg" + page).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
+    private static void page(String areaName, int page) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/bj/" + areaName, true))) {
+            Document document = Jsoup.connect(URL.concat(areaName) + "/pg" + page).cookie("lianjia_uuid", "c51d30c6-4dbf-4d52-b1de-de01f6493f72").get();
             Elements elements = document.select("li[class=clear]");
             for (Element element : elements) {
                 String imageUrl = element.childNode(0).attr("href");
@@ -65,11 +64,15 @@ public class Spider implements Runnable {
                 String unitPrice = element.select("div[class=unitPrice]").first().attr("data-price");
                 writer.write(id + "@" + region + "@" + houseInfo + "@" + totalPrice + "@" + unitPrice + "\n");
             }
+        } catch (SocketTimeoutException e) {
+            System.out.println("---socket time out:" + areaName + ",page:" + page);
+            page(areaName, page);
         } catch (HttpStatusException e) {
-            System.out.println("http status code:" + e.getStatusCode());
-            page(areaUrl, page);
+            System.out.println("---http status code:" + areaName + ",page:" + page);
+            page(areaName, page);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("---io exception:" + areaName + ",page:" + page);
+            page(areaName, page);
         }
     }
 }
