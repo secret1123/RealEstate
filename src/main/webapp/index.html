@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+        }
+        body {
+            background: #ddd;
+        }
+        #totalPrice,
+        #unitPrice {
+            margin: 20px auto 100px;
+            width: 1200px;
+            height: 600px;
+        }
+    </style>
+    <script src="echarts.js"></script>
+</head>
+<body>
+<div id="totalPrice"></div>
+<div id="unitPrice"></div>
+<script>
+    var totalPriceChart = echarts.init(document.getElementById('totalPrice'));
+    var totalPriceOption = {
+        title: {
+            text: '北京二手房总价分析',
+            subtext: '数据来自链家网'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        legend: {
+            data: ['最低总价', '平均总价', '最高总价']
+        },
+        grid: {
+            top: '15%',
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: ['东城', '西城', '朝阳', '海淀', '丰台', '石景山', '通州', '昌平', '大兴', '亦庄开发区', '顺义', '房山', '门头沟', '平谷', '密云', '延庆', '燕郊']
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                name: '万元'
+            }
+        ],
+        series: [
+            {
+                name: '最低总价',
+                type: 'bar',
+                data: [330.0, 350.0, 200.0, 300.0, 33.0, 40.0, 230.0, 26.0, 35.0, 127.0, 178.0, 20.0, 30.0, 239.0, 310.0, 255.0, 89.0]
+            },
+            {
+                name: '平均总价',
+                type: 'bar',
+                data: [966, 955, 837, 897, 616, 541, 564, 567, 540, 687, 602, 385, 449, 533, 890, 383, 287]
+            },
+            {
+                name: '最高总价',
+                type: 'bar',
+                data: [5600.0, 5600.0, 8000.0, 7000.0, 3500.0, 7300.0, 3100.0, 8000.0, 3780.0, 2200.0, 4200.0, 1050.0, 3200.0, 1500.0, 1500.0, 510.0, 3660.0]
+            }
+        ]
+    };
+    totalPriceChart.setOption(totalPriceOption);
+    var unitPriceChart = echarts.init(document.getElementById('unitPrice'));
+    var unitPriceOption = {
+        title: {
+            text: '北京二手房单价分析',
+            subtext: '数据来自链家网'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        legend: {
+            data: ['最低单价', '平均单价', '最高单价']
+        },
+        grid: {
+            top: '15%',
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: ['东城', '西城', '朝阳', '海淀', '丰台', '石景山', '通州', '昌平', '大兴', '亦庄开发区', '顺义', '房山', '门头沟', '平谷', '密云', '延庆', '燕郊']
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                name: '元'
+            }
+        ],
+        series: [
+            {
+                name: '最低单价',
+                type: 'bar',
+                data: [53192.0, 49970.0, 32838.0, 39303.0, 7047.0, 11511.0, 26801.0, 6747.0, 11921.0, 33292.0, 22586.0, 4760.0, 10153.0, 24257.0, 15607.0, 29118.0, 16478.0]
+            },
+            {
+                name: '平均单价',
+                type: 'bar',
+                data: [113066, 120114, 80340, 97943, 66484, 63652, 56178, 49495, 52909, 53893, 45892, 38038, 47063, 33604, 27604, 29829, 30440]
+            },
+            {
+                name: '最高单价',
+                type: 'bar',
+                data: [149997.0, 149985.0, 149882.0, 149939.0, 128361.0, 132626.0, 117112.0, 126350.0, 105367.0, 79230.0, 116534.0, 62963.0, 84131.0, 53055.0, 41149.0, 30539.0, 72339.0]
+            }
+        ]
+    };
+    unitPriceChart.setOption(unitPriceOption);
+</script>
+</body>
+</html>
